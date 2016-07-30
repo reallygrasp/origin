@@ -14,6 +14,7 @@ from time import ctime,sleep
 import pdb
 import sys
 
+
 class Fetch_Quote_Thread(threading.Thread):
     def __init__(self,func_fetch,code,starttime,endtime):
         threading.Thread.__init__(self)
@@ -129,21 +130,17 @@ def main():
     for each_code in code_list[0:50]:
         print('thread quote is building:',each_code)
         #pdb.set_trace()
-        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2013-03-28',endtime='2016-03-28')
+        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2016-03-20',endtime='2016-03-28')
         thread_quote_list.append(thread_quote)
         #pdb.set_trace()
         
     
-    for j in range(len(thread_quote_list)):
-        print(ctime(),'thread quote is going to start:',thread_quote_list[j])
+    for i in range(len(thread_quote_list)):
+        print(ctime(),'thread quote is going to start:',thread_quote_list[i])
         #pdb.set_trace()
-        thread_quote_list[j].start()
+        thread_quote_list[i].start()
         
-    sleep(10)
-    for k in range(len(thread_quote_list)):
-        #pdb.set_trace()
-        
-        thread_quote_list[k].join()
+            
         while not quote_queue.empty():
             thread_push=Push_Quote_Thread(push_quote)
             thread_push_list=[]
@@ -151,10 +148,13 @@ def main():
             for t in thread_push_list:
                 t.start()
                 t.join()
+        thread_quote_list[i].join()
+
+        
     
         
 if __name__=='__main__':
     main()
     print('#'*100)
     print('all done!')
-    print('#'*100)     
+    print('#'*100)    

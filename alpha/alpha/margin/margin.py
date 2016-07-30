@@ -64,7 +64,11 @@ class Margin(Quote):
     def Get_margin(self):
         try:
             if int(self.code)>60000 and int(self.code)<610000:
-                self.margin=ts.sh_margin_details(start=self.starttime,end=self.endtime,symbol=self.code).sort_values(by='opDate',ascending=True)
+                each_margin=ts.sh_margin_details(start=self.starttime,end=self.endtime,symbol=self.code)
+                if each_margin.empty:
+                    return
+                else:
+                    self.margin=each_margin.sort_values(by='opDate',ascending=True)
             elif int(self.code)>0 and int(self.code)<3000:
                 self.Get_Margin_sz()
                 print(sorted(margin_dict.keys()))
