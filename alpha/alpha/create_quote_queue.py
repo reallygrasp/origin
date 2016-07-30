@@ -9,11 +9,12 @@ import threading
 import Queue
 import MySQLdb as mdb
 import pandas as pd
+from imp import reload
 from alpha.quote.factor import Factor
 from time import ctime,sleep
 import pdb
 import sys
-
+sys.path.append(r'E:\py\alpha\alpha\alpha')
 
 class Fetch_Quote_Thread(threading.Thread):
     def __init__(self,func_fetch,code,starttime,endtime):
@@ -62,9 +63,11 @@ def fetch_quote(code,starttime,endtime):
     try:
         each_quote.Cal_pe()
         #pdb.set_trace()
+        
+        each_quote.Add_date()
         each_quote.Add_margin()
         #pdb.set_trace()
-        each_quote.Add_date()
+        
         each_quote.Add_code_Abbr()
         quote_dict={}
         quote_dict[code]=each_quote
@@ -88,16 +91,17 @@ def push_quote(quote_obj):
         close decimal(5,2),low decimal(5,2),volume float,price_change decimal(5,2),
         p_change decimal(5,2),ma5 decimal(6,3),ma10 decimal(6,3),ma20 decimal(6,3),
         v_ma5 float,v_ma10 float,v_ma20 float,turnover decimal(4,2),
-        eps decimal(6,3),roe decimal(6,3),net_profits float,pe float,
-        rzye bigint,rzmre bigint,rqyl bigint,rqmcl bigint,date date not null unique,
+        eps decimal(6,3),roe decimal(6,3),net_profits float,pe float,date date not null unique,
+        rzye bigint,rzmre bigint,rqyl bigint,rqmcl bigint,
         stockCode char(6),securityAbbr varchar(20),primary key(date)) 
         default charset=utf8;"""%param_create
-        print('$'*100)
-        print('已经成功生产MYSQL表:',param_create)
-        print('$'*100)
+        
         cur.execute('drop table if exists %s;'%param_create)
         cur.execute(sql_create)
         conn.commit()
+        print('$'*100)
+        print('已经成功产生MYSQL表:',param_create)
+        print('$'*100)
     except Exception,e:
         print('cannnot create table for:',e)
     cur.close()
@@ -109,11 +113,16 @@ def push_quote(quote_obj):
     except Exception,e:
         print("cannot connect mysqldb for:",e)
     param_insert=quote_obj.data.values
+    
     sql_insert="""insert into {0} values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);""".format(param_create)
     #pdb.set_trace()
-    for line in param_insert:
+    try:
+        for line in param_insert:
+        
         #pdb.set_trace()
-        cur.execute(sql_insert,tuple(line))
+            cur.execute(sql_insert,tuple(line))
+    except Exception,e:
+        print(param_create,'sql insert failed for:',e)
         #pdb.set_trace()
     conn.commit()
     cur.close()
@@ -124,23 +133,23 @@ def main():
     code_name.columns=['code','name']
     for each in code_name.code:
         code_list.append('0'*(6-len(str(int(each))))+str(int(each)))
-    print(code_list[1900:1910])
+    
 
     thread_quote_list=[]
-    for each_code in code_list[0:50]:
+    for each_code in code_list[0:10]:
         print('thread quote is building:',each_code)
         #pdb.set_trace()
-        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2016-03-20',endtime='2016-03-28')
+        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2014-07-28',endtime='2016-07-28')
         thread_quote_list.append(thread_quote)
         #pdb.set_trace()
-        
+    
     
     for i in range(len(thread_quote_list)):
         print(ctime(),'thread quote is going to start:',thread_quote_list[i])
         #pdb.set_trace()
         thread_quote_list[i].start()
         
-            
+        thread_quote_list[i].join()    
         while not quote_queue.empty():
             thread_push=Push_Quote_Thread(push_quote)
             thread_push_list=[]
@@ -148,7 +157,7 @@ def main():
             for t in thread_push_list:
                 t.start()
                 t.join()
-        thread_quote_list[i].join()
+        
 
         
     
