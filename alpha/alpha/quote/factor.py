@@ -68,18 +68,22 @@ class Factor(Quote):
         if len(margin.margin)==0:
             print(self.code,'cannot margin and short')
             
-            self.data['rzye']=[1]*len(self.data)
-            self.data['rzmre']=[1]*len(self.data)
-            self.data['rqyl']=[1]*len(self.data)
-            self.data['rqmcl']=[1]*len(self.data)
+            self.data['rzye']=1
+            self.data['rzmre']=1
+            self.data['rqyl']=1
+            self.data['rqmcl']=1
             return
         else:
-            
-            self.data['rzye']=list(margin.margin.rzye)
-            self.data['rzmre']=list(margin.margin.rzmre)
-            self.data['rqyl']=list(margin.margin.rqyl)
-            self.data['rqmcl']=list(margin.margin.rqmcl)
-            
+            self.data['rzye']=1
+            self.data['rzmre']=1
+            self.data['rqyl']=1
+            self.data['rqmcl']=1
+            for date in list(self.data.index):
+                if date in list(margin.margin.opDate):
+                    self.data.loc[self.data.date==date,['rzye']]=margin.margin.loc[margin.margin.opDate==date,['rzye']].iloc[0][0]
+                    self.data.loc[self.data.date==date,['rzmre']]=margin.margin.loc[margin.margin.opDate==date,['rzmre']].iloc[0][0]
+                    self.data.loc[self.data.date==date,['rqyl']]=margin.margin.loc[margin.margin.opDate==date,['rqyl']].iloc[0][0]
+                    self.data.loc[self.data.date==date,['rqmcl']]=margin.margin.loc[margin.margin.opDate==date,['rqmcl']].iloc[0][0]
     def Plot_quote(self):
         try:
             if self.data is not None:
