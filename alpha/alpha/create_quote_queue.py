@@ -14,8 +14,6 @@ from time import ctime,sleep
 import pdb
 import sys
 
-sys.path.append(r'E:\py\alpha\alpha\alpha')
-
 class Fetch_Quote_Thread(threading.Thread):
     def __init__(self,func_fetch,code,starttime,endtime):
         threading.Thread.__init__(self)
@@ -121,17 +119,17 @@ def push_quote(quote_obj):
     conn.close()
 def main():
     code_list=[]
-    code_name=pd.read_csv(r'E:\py\alpha\code_name.csv',encoding='utf-8')
+    code_name=pd.read_csv(r'/home/site/AlphaStrategy/alpha/alpha/code_name.csv',encoding='utf-8')
     code_name.columns=['code','name']
     for each in code_name.code:
         code_list.append('0'*(6-len(str(int(each))))+str(int(each)))
     print(code_list[1900:1910])
 
     thread_quote_list=[]
-    for each_code in code_list[1900:1910]:
+    for each_code in code_list[0:50]:
         print('thread quote is building:',each_code)
         #pdb.set_trace()
-        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2016-03-20',endtime='2016-03-28')
+        thread_quote=Fetch_Quote_Thread(fetch_quote,each_code,starttime='2013-03-28',endtime='2016-03-28')
         thread_quote_list.append(thread_quote)
         #pdb.set_trace()
         
@@ -159,4 +157,4 @@ if __name__=='__main__':
     main()
     print('#'*100)
     print('all done!')
-    print('#'*100)    
+    print('#'*100)     
