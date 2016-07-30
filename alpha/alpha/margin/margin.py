@@ -63,7 +63,7 @@ class Margin(Quote):
             thread_list[i].join()
     def Get_margin(self):
         try:
-            if int(self.code)>60000 and int(self.code)<610000:
+            if int(self.code)>=60000 and int(self.code)<610000:
                 each_margin=ts.sh_margin_details(start=self.starttime,end=self.endtime,symbol=self.code)
                 if each_margin.empty:
                     return
